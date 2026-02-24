@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartHotel AI OS - Alex</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai_insights.css">
+    <link rel="stylesheet" href="ai_console.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- LOGIN SCREEN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">SMART<span>HOTEL</span></div>
+            <div class="login-subtitle">AI Operating System</div>
+
+            <div class="login-step active" id="loginStep1">
+                <div class="form-group">
+                    <label>Email Corporativo</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="ej. admin@smarthotel.com"
+                        value="admin@smarthotel.com">
+                </div>
+                <button class="btn-primary" onclick="loginSendOTP()">Enviar Código de Acceso</button>
+            </div>
+
+            <div class="login-step" id="loginStep2">
+                <h3>Verificación de Identidad</h3>
+                <p class="otp-hint">Código enviado a tu email. Usa: <code>1234</code></p>
+                <div class="otp-group">
+                    <input type="text" maxlength="1" class="otp-input" data-otp="0">
+                    <input type="text" maxlength="1" class="otp-input" data-otp="1">
+                    <input type="text" maxlength="1" class="otp-input" data-otp="2">
+                    <input type="text" maxlength="1" class="otp-input" data-otp="3">
+                </div>
+                <button class="btn-primary" onclick="loginVerifyOTP()">Verificar</button>
+            </div>
+
+            <div class="login-step" id="loginStep3">
+                <h3>Selecciona tu Rol</h3>
+                <div class="role-grid">
+                    <div class="role-btn" onclick="selectRole(this, 'admin')">
+                        <span class="role-icon">👑</span>
+                        <div class="role-name">Gerencia</div>
+                    </div>
+                    <div class="role-btn" onclick="selectRole(this, 'reception')">
+                        <span class="role-icon">🛎️</span>
+                        <div class="role-name">Recepción</div>
+                    </div>
+                    <div class="role-btn" onclick="selectRole(this, 'housekeeping')">
+                        <span class="role-icon">🧹</span>
+                        <div class="role-name">Housekeeping</div>
+                    </div>
+                    <div class="role-btn" onclick="selectRole(this, 'guest')">
+                        <span class="role-icon">🏖️</span>
+                        <div class="role-name">Huésped</div>
+                    </div>
+                </div>
+                <button class="btn-primary" id="btnLoginComplete" disabled onclick="loginComplete()">Ingresar al
+                    Sistema</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP LAYOUT -->
+    <div class="app-layout" id="appLayout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">SMART<span>HOTEL</span></div>
+                <div class="sidebar-role" id="sidebarRoleDisplay">Administrador</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active" onclick="navigate('dashboard')">
+                    <i class="fas fa-home nav-icon"></i> <span class="nav-label">Dashboard</span>
+                </div>
+
+                <div class="nav-section" id="navSectionPMS">
+                    <div class="nav-section-title">PMS Core</div>
+                    <div class="nav-item" onclick="navigate('rooms')">
+                        <i class="fas fa-bed nav-icon"></i> <span class="nav-label">Habitaciones</span>
+                    </div>
+                    <div class="nav-item" onclick="navigate('reservations')">
+                        <i class="fas fa-calendar-alt nav-icon"></i> <span class="nav-label">Reservas</span>
+                    </div>
+                    <div class="nav-item" onclick="navigate('checkin')">
+                        <i class="fas fa-key nav-icon"></i> <span class="nav-label">Check-in / Out</span>
+                    </div>
+                    <div class="nav-item" onclick="navigate('housekeeping')">
+                        <i class="fas fa-broom nav-icon"></i> <span class="nav-label">Housekeeping</span>
+                        <span class="nav-badge" id="hkBadge">3</span>
+                    </div>
+                    <div class="nav-item" onclick="navigate('maintenance')">
+                        <i class="fas fa-wrench nav-icon"></i> <span class="nav-label">Mantenimiento</span>
+                        <span class="nav-badge" id="mtBadge" style="background:var(--warning)">0</span>
+                    </div>
+                </div>
+
+                <div class="nav-section" id="navSectionComercial">
+                    <div class="nav-section-title">Comercial</div>
+                    <div class="nav-item" id="navChannels" onclick="navigate('channels')">
+                        <i class="fas fa-globe nav-icon"></i> <span class="nav-label">Channel Manager</span>
+                    </div>
+                    <div class="nav-item" id="navRevenue" onclick="navigate('revenue')">
+                        <i class="fas fa-chart-line nav-icon"></i> <span class="nav-label">Revenue Mgmt</span>
+                    </div>
+                    <div class="nav-item" onclick="navigate('quotations')">
+                        <i class="fas fa-file-invoice nav-icon"></i> <span class="nav-label">Cotizaciones</span>
+                    </div>
+                    <div class="nav-item" onclick="navigate('crm')">
+                        <i class="fas fa-users nav-icon"></i> <span class="nav-label">CRM & Guests</span>
+                    </div>
+                </div>
+
+                <div class="nav-section" id="navSectionServicios">
+                    <div class="nav-section-title">Servicios</div>
+                    <div class="nav-item" onclick="navigate('pos')">
+                        <i class="fas fa-cash-register nav-icon"></i> <span class="nav-label">Punto de Venta</span>
+                    </div>
+                    <div class="nav-item" id="navReports" onclick="navigate('reports')">
+                        <i class="fas fa-file-invoice-dollar nav-icon"></i> <span class="nav-label">Reportes</span>
+                    </div>
+                    <div class="nav-item" onclick="navigate('reputation')">
+                        <i class="fas fa-star nav-icon"></i> <span class="nav-label">Reputación</span>
+                    </div>
+                </div>
+                <div class="nav-section" id="navSectionAdmin" style="display:none">
+                    <div class="nav-section-title">Administración</div>
+                    <div class="nav-item" onclick="navigate('settings')">
+                        <i class="fas fa-cogs nav-icon"></i> <span class="nav-label">Configuración</span>
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar" id="userAvatar">AD</div>
+                    <div class="sidebar-user-info">
+                        <div class="sidebar-user-name" id="userName">Admin User</div>
+                        <div class="sidebar-user-role">Gerente General</div>
+                    </div>
+                    <button class="sidebar-logout" onclick="logout()" title="Cerrar Sesión"><i
+                            class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="main-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="header-title" id="pageTitle">Dashboard</div>
+                </div>
+                <div class="header-actions">
+                    <div class="header-rate" id="exchangeRateDisplay" title="Tasa del día (BCV/Oficial)">
+                        <span class="rate-label">Tasa:</span>
+                        <span class="rate-value" id="headerRateValue">Bs. --</span>
+                        <button class="rate-sync-btn" onclick="syncExchangeRate()" title="Sincronizar con BCV">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <span class="header-date" id="currentDate">Hoy</span>
+                    <button class="header-btn" onclick="toggleNotifications()">
+                        <i class="far fa-bell"></i>
+                        <span class="notif-dot"></span>
+                    </button>
+                    <button class="header-btn" onclick="alert('Centro de Ayuda: Contacte a soporte@smarthotel.ai')"><i
+                            class="far fa-question-circle"></i></button>
+                </div>
+            </header>
+
+            <div class="page-content">
+
+                <!-- DASHBOARD -->
+                <section id="page-dashboard" class="page-section active">
+                    <div id="aiInsightsPanel"></div>
+                    <div class="kpi-grid" id="kpiGrid"></div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Ocupación Semanal</h3><button class="btn btn-outline btn-sm"
+                                    onclick="navigate('reports')">Ver
+                                    más</button>
+                            </div>
+                            <div class="chart-container" style="height: 300px; position: relative;">
+                                <canvas id="occupancyChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Llegadas de Hoy</h3><button
+                                    class="btn btn-outline btn-sm">Check-in Rápido</button>
+                            </div>
+                            <div id="arrivalsList"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Actividad Reciente</h3>
+                        </div>
+                        <div id="activityFeed"></div>
+                    </div>
+                </section>
+
+                <!-- ROOMS -->
+                <section id="page-rooms" class="page-section">
+                    <div class="flex-between mb-16">
+                        <div class="room-legend">
+                            <div class="legend-item" onclick="setStatusFilter('available')" style="cursor:pointer">
+                                <div class="legend-dot available"></div>Libre
+                            </div>
+                            <div class="legend-item" onclick="setStatusFilter('occupied')" style="cursor:pointer">
+                                <div class="legend-dot occupied"></div>Ocupada
+                            </div>
+                            <div class="legend-item" onclick="setStatusFilter('cleaning')" style="cursor:pointer">
+                                <div class="legend-dot cleaning"></div>Limpieza
+                            </div>
+                            <div class="legend-item" onclick="setStatusFilter('maintenance')" style="cursor:pointer">
+                                <div class="legend-dot maintenance"></div>Mantenimiento
+                            </div>
+                            <div class="legend-item" onclick="setStatusFilter('checkout')" style="cursor:pointer">
+                                <div class="legend-dot checkout"></div>Checkout
+                            </div>
+                        </div>
+                        <div id="roomsHeaderActions">
+                            <button class="btn btn-gold" onclick="showAddRoomModal()"><i class="fas fa-plus"></i>
+                                Añadir</button>
+                        </div>
+                    </div>
+                    <div id="floorSelector" class="floor-selector mb-16"></div>
+                    <div class="rooms-grid" id="roomsGrid"></div>
+                </section>
+
+                <!-- RESERVATIONS -->
+                <section id="page-reservations" class="page-section">
+                    <div class="flex-between mb-16 gap-16" style="flex-wrap:wrap">
+                        <div class="flex gap-8 items-center" style="flex:1">
+                            <i class="fas fa-search text-muted"></i>
+                            <input type="text" id="resSearch" class="form-input" placeholder="Buscar reserva..."
+                                onkeyup="renderReservations()" style="max-width:200px">
+                            <span class="text-muted" style="font-size:12px; margin-left:8px">Filtrar:</span>
+                            <input type="date" id="resFilterDate" class="form-input" style="width:150px; cursor:pointer"
+                                onchange="setResFilterDate(this.value)">
+                            <button class="btn btn-outline btn-sm" onclick="setResFilterDate('today')"
+                                title="Ver Hoy">Hoy</button>
+                            <button class="btn btn-outline btn-sm" id="btnShowAllRes" onclick="toggleShowAllRes()"
+                                title="Ver todas">Todas</button>
+                        </div>
+                        <div id="resHeaderActions" class="flex gap-8">
+                            <button class="btn btn-gold" onclick="openNewResModal()"><i class="fas fa-plus"></i> Nueva
+                                Reserva</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Huésped</th>
+                                        <th>Hab</th>
+                                        <th>Llegada</th>
+                                        <th>Salida</th>
+                                        <th>Canal</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CHECK-IN / OUT -->
+                <section id="page-checkin" class="page-section">
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Check-in Pendiente</h3>
+                            </div>
+                            <div id="checkinList"></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Check-out Hoy</h3>
+                            </div>
+                            <div id="checkoutList"></div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:20px">
+                        <div class="card-header flex-between" style="flex-wrap:wrap; gap:10px">
+                            <h3 class="card-title">📜 Historial de Facturas (Chequeos de Salida)</h3>
+                            <div class="flex gap-8 items-center" style="flex-wrap:wrap">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="invoiceSearch" class="form-input"
+                                        style="width:200px; padding-left:30px" placeholder="Buscar por nombre o hab..."
+                                        oninput="renderInvoiceHistory()">
+                                </div>
+                                <div class="flex gap-4 items-center">
+                                    <label style="font-size:12px; color:var(--text-secondary)">Fecha:</label>
+                                    <input type="date" id="invoiceHistoryDate" class="form-input" style="width:130px"
+                                        onchange="renderInvoiceHistory(this.value)">
+                                </div>
+                                <button class="btn btn-outline btn-sm" onclick="setInvoiceHistoryToday()">Hoy</button>
+                            </div>
+                        </div>
+                        <div id="invoiceHistoryList" class="flex-column" style="margin-top:10px; gap:8px"></div>
+                    </div>
+                    <div id="checkinWizard" class="card hidden">
+                        <div class="card-header">
+                            <h3 class="card-title">Asistente de Check-in</h3><button class="btn btn-outline btn-sm"
+                                onclick="document.getElementById('checkinWizard').classList.add('hidden')">Cancelar</button>
+                        </div>
+                        <div id="checkinSteps" class="checkin-steps"></div>
+                    </div>
+                </section>
+
+                <!-- HOUSEKEEPING -->
+                <section id="page-housekeeping" class="page-section">
+                    <div class="flex-between mb-16">
+                        <div class="flex gap-16">
+                            <button class="btn btn-outline active" onclick="filterHK('all')">Todo</button>
+                            <button class="btn btn-outline" onclick="filterHK('pendiente')">Pendientes</button>
+                            <button class="btn btn-outline" onclick="filterHK('inspeccionada')">Listas</button>
+                        </div>
+                        <div class="flex gap-8">
+                            <button class="btn btn-outline btn-sm" id="btnClearHK" onclick="clearCompletedHKTasks()"
+                                title="Borrar tareas terminadas">
+                                <i class="fas fa-trash-alt"></i> Limpiar Historial
+                            </button>
+                            <button class="btn btn-outline" onclick="showHKModal()"><i class="fas fa-plus"></i> Nueva
+                                Tarea</button>
+                            <button class="btn btn-gold"
+                                onclick="alert('Asignación automática: 3 tareas priorizadas por IA')"><i
+                                    class="fas fa-magic"></i> Asignación Auto</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div id="hkTaskList"></div>
+                    </div>
+                </section>
+
+                <!-- CHANNEL MANAGER -->
+                <section id="page-channels" class="page-section">
+                    <div class="grid-2 mb-16" id="channelCards"></div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Paridad de Tarifas</h3><span class="badge badge-green">Monitoreo
+                                Activo</span>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo Habitación</th>
+                                        <th>Base (PMS)</th>
+                                        <th>Booking</th>
+                                        <th>Expedia</th>
+                                        <th>Airbnb</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="parityTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- REVENUE MANAGEMENT -->
+                <section id="page-revenue" class="page-section">
+                    <div class="grid-3 mb-16">
+                        <div class="kpi-card">
+                            <div class="kpi-label">RevPAR</div>
+                            <div class="kpi-value" id="revpar">$0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">ADR</div>
+                            <div class="kpi-value" id="adr">$0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Ocupación</div>
+                            <div class="kpi-value" id="occRate">0%</div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Sugerencias AI de Precios</h3><span class="badge badge-gold"
+                                    id="aiSuggCount">0</span>
+                            </div>
+                            <div id="pricingSuggestions"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CRM -->
+                <section id="page-crm" class="page-section">
+                    <div class="card"
+                        style="height:calc(100vh - 140px); overflow-y:auto; max-width:1000px; margin:0 auto">
+                        <div class="flex-between mb-16">
+                            <h3 class="card-title">Directorio de Huéspedes</h3>
+                            <div class="flex gap-8">
+                                <button class="btn btn-outline btn-sm" id="btnFilterRecurrent"
+                                    onclick="toggleFilterRecurrent()">⭐ Recurrentes</button>
+                                <button class="btn btn-gold btn-sm" onclick="openModal('guestModal')">+ Nuevo</button>
+                            </div>
+                        </div>
+
+                        <!-- CRM Stats Summary Bar -->
+                        <div id="crmStats" class="grid-3 gap-16 mb-20"></div>
+
+                        <input type="text" id="crmSearch" class="form-input mb-16"
+                            placeholder="Buscar por nombre, cédula o teléfono..." onkeyup="filterGuests()">
+                        <div id="guestDirectory"></div>
+                    </div>
+                </section>
+
+                <!-- QUOTATIONS -->
+                <section id="page-quotations" class="page-section">
+                    <div class="flex-between mb-16 gap-16" style="flex-wrap:wrap">
+                        <div class="flex gap-8 items-center" style="flex:1">
+                            <i class="fas fa-search text-muted"></i>
+                            <input type="text" id="quoteSearch" class="form-input" placeholder="Buscar cotización..."
+                                onkeyup="renderQuotations()" style="max-width:200px">
+                            <span class="text-muted" style="font-size:12px; margin-left:8px">Filtrar:</span>
+                            <select id="quoteStatusFilter" class="form-input" style="width:150px"
+                                onchange="renderQuotations()">
+                                <option value="all">Todas</option>
+                                <option value="pendiente">Pendientes</option>
+                                <option value="confirmada">Confirmadas</option>
+                                <option value="cancelada">Canceladas</option>
+                            </select>
+                        </div>
+                        <div id="quoteHeaderActions" class="flex gap-8">
+                            <button class="btn btn-gold" onclick="openNewQuoteModal()"><i class="fas fa-plus"></i> Nueva
+                                Cotización</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Localizador</th>
+                                        <th>Agencia / RIF</th>
+                                        <th>Pasajeros</th>
+                                        <th>Habitación</th>
+                                        <th>Llegada</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="quoteTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- POS -->
+                <section id="page-pos" class="page-section">
+                    <div class="grid-2" style="grid-template-columns: 2fr 1fr;">
+                        <div>
+                            <div class="pos-tabs">
+                                <button class="pos-tab active" onclick="switchPOS('restaurante')">Restaurante</button>
+                                <button class="pos-tab" onclick="switchPOS('spa')">Spa & Wellness</button>
+                                <button class="pos-tab" onclick="switchPOS('tours')">Tours / Actividades</button>
+                            </div>
+                            <div class="pos-grid" id="posProducts"></div>
+                        </div>
+                        <div class="pos-cart">
+                            <h3 class="card-title mb-16">Orden Actual</h3>
+                            <div class="form-group mb-16">
+                                <label>Cargar a Habitación</label>
+                                <select class="form-input" id="posRoom">
+                                    <option>Seleccionar...</option>
+                                </select>
+                            </div>
+                            <div id="posCartItems" style="min-height:200px;margin-bottom:16px"></div>
+                            <div class="pos-total"><span>Total</span><span id="posTotal">$0.00</span></div>
+                            <button class="btn btn-gold w-full mt-16" onclick="posCharge()">Cargar a la
+                                Habitación</button>
+                            <button class="btn btn-outline w-full mt-8" onclick="posPayNow()">Pago Directo
+                                Efectivo/POS</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- REPORTS -->
+                <section id="page-reports" class="page-section">
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Revenue por Canal</h3>
+                            </div>
+                            <div id="revenueDonut"
+                                style="display:flex;flex-direction:column;align-items:center;gap:16px"></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Ocupación Mensual</h3>
+                            </div>
+                            <div class="chart-container" style="height: 300px; position: relative;">
+                                <canvas id="monthlyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Night Audit (Cierre del Día)</h3><button class="btn btn-gold btn-sm"
+                                onclick="runNightAudit()">Ejecutar Ahora</button>
+                        </div>
+                        <div id="nightAuditReport"></div>
+                    </div>
+                </section>
+
+                <!-- MAINTENANCE -->
+                <section id="page-maintenance" class="page-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Órdenes de Mantenimiento</h3>
+                            <button class="btn btn-gold btn-sm" onclick="showMTModal()">+ Nueva Orden</button>
+                        </div>
+                        <div class="hk-filters" style="margin-bottom:12px">
+                            <button class="filter-btn active" onclick="filterMT('all')">Todas</button>
+                            <button class="filter-btn" onclick="filterMT('pendiente')">Pendientes</button>
+                            <button class="filter-btn" onclick="filterMT('progreso')">En Progreso</button>
+                            <button class="filter-btn" onclick="filterMT('resuelta')">Resueltas</button>
+                        </div>
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hab</th>
+                                        <th>Descripción</th>
+                                        <th>Prioridad</th>
+                                        <th>Asignado</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mtTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- REPUTATION -->
+                <section id="page-reputation" class="page-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Últimas Reseñas</h3><span class="badge badge-purple">AI Sentiment
+                                Analysis</span>
+                        </div>
+                        <div id="reviewsList"></div>
+                    </div>
+                </section>
+
+                <!-- SETTINGS (ADMIN) -->
+                <section id="page-settings" class="page-section">
+                    <div class="card" style="max-width:800px; margin:0 auto">
+                        <div class="card-header">
+                            <h3 class="card-title">Configuración del Hotel</h3>
+                            <button class="btn btn-primary" onclick="saveSettings()">💾 Guardar Cambios</button>
+                        </div>
+
+                        <div class="form-grid mt-16">
+                            <div class="form-group" style="grid-column: span 2">
+                                <label>Nombre del Hotel</label>
+                                <input type="text" id="settingHotelName" class="form-input"
+                                    placeholder="Nombre Comercial">
+                            </div>
+                            <div class="form-group">
+                                <label>RIF / ID Fiscal</label>
+                                <input type="text" id="settingHotelRif" class="form-input" placeholder="J-12345678-9">
+                            </div>
+                            <div class="form-group">
+                                <label>Teléfono Principal</label>
+                                <input type="text" id="settingHotelPhone" class="form-input" placeholder="+58 ...">
+                            </div>
+                            <div class="form-group" style="grid-column: span 2">
+                                <label>Dirección Física</label>
+                                <textarea id="settingHotelAddress" class="form-input" rows="2"
+                                    placeholder="Dirección completa..."></textarea>
+                            </div>
+                            <div class="form-group" style="grid-column: span 2">
+                                <label>Email de Contacto</label>
+                                <input type="email" id="settingHotelEmail" class="form-input"
+                                    placeholder="contacto@hotel.com">
+                            </div>
+
+                            <div class="separator"
+                                style="grid-column: span 2; margin: 20px 0; border-top: 1px solid var(--border)"></div>
+
+                            <h4 style="grid-column: span 2; margin-bottom:10px">Configuración Financiera</h4>
+
+                            <div class="form-group">
+                                <label>Tasa de Cambio (Ref)</label>
+                                <input type="number" id="settingExchangeRate" class="form-input" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label>Próximo N° Factura</label>
+                                <input type="number" id="settingInvoiceNum" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Próximo N° Control</label>
+                                <input type="number" id="settingControlNum" class="form-input">
+                            </div>
+
+                            <div class="separator"
+                                style="grid-column: span 2; margin: 20px 0; border-top: 1px solid var(--border)"></div>
+
+                            <h4 style="grid-column: span 2; margin-bottom:10px">Tipos de Habitación y Precios</h4>
+                            <div style="grid-column: span 2">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre / Tipo</th>
+                                            <th>Precio Base ($)</th>
+                                            <th>Capacidad</th>
+                                            <th style="text-align:center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settingRoomTypesTableBody"></tbody>
+                                </table>
+                            </div>
+
+                            <div class="separator"
+                                style="grid-column: span 2; margin: 20px 0; border-top: 1px solid var(--border)"></div>
+
+                            <h4 style="grid-column: span 2; margin-bottom:10px">Usuarios del Sistema</h4>
+                            <div style="grid-column: span 2">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Rol</th>
+                                            <th>Email / Usuario</th>
+                                            <th style="text-align:center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settingUsersTableBody"></tbody>
+                                </table>
+                                <button class="btn btn-outline btn-sm mt-8" onclick="addUser()">+ Agregar
+                                    Usuario</button>
+                            </div>
+
+                            <div class="separator"
+                                style="grid-column: span 2; margin: 20px 0; border-top: 1px solid var(--border)"></div>
+
+                            <h4 style="grid-column: span 2; margin-bottom:10px">Métodos de Pago y Bancos</h4>
+                            <div class="form-group">
+                                <label>Métodos Principales</label>
+                                <div id="settingPMListMain"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Métodos Divisa</label>
+                                <div id="settingPMListDivisa"></div>
+                            </div>
+                            <div class="form-group" style="grid-column: span 2">
+                                <label>Instrucciones de Pago / Datos Bancarios</label>
+                                <textarea id="settingBankInstructions" class="form-input" rows="4"
+                                    placeholder="Ej: Pago Móvil: 0414... / Zelle: ..."
+                                    onblur="saveBankInstructions(this.value)"></textarea>
+                                <small style="color:var(--text-light)">Esta información aparecerá al seleccionar métodos
+                                    como Transferencia o Pago Móvil.</small>
+                            </div>
+
+                            <div class="separator"
+                                style="grid-column: span 2; margin: 20px 0; border-top: 1px solid var(--border)"></div>
+
+                            <h4 style="grid-column: span 2; margin-bottom:10px">Políticas del Hotel</h4>
+                            <div class="form-grid"
+                                style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+                                <div class="form-group">
+                                    <label>Hora de Check-in (Entrada)</label>
+                                    <input type="time" id="settingAuthCheckIn" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora de Check-out (Salida)</label>
+                                    <input type="time" id="settingAuthCheckOut" class="form-input">
+                                </div>
+                                <div class="form-group" style="grid-column: span 2">
+                                    <label>Términos y Condiciones (Recibo)</label>
+                                    <textarea id="settingTerms" class="form-input" rows="3"
+                                        placeholder="Términos legales que aparecen en la factura..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="separator"
+                                style="grid-column: span 2; margin: 20px 0; border-top: 1px solid var(--border)"></div>
+
+                            <h4 style="grid-column: span 2; margin-bottom:10px">Productos y Servicios (POS)</h4>
+                            <div style="grid-column: span 2">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Categoría</th>
+                                            <th>Precio</th>
+                                            <th style="text-align:center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settingProductsTableBody"></tbody>
+                                </table>
+                                <button class="btn btn-outline btn-sm mt-8" onclick="addProduct()">+ Agregar
+                                    Producto</button>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            </section>
+
+    </div>
+    </main>
+
+    <!-- AI ANALYTICS CONSOLE (FULL SCREEN) -->
+    <div class="ai-console-overlay" id="aiConsole">
+        <header class="ai-console-header">
+            <div class="ai-console-brand">
+                <div class="ai-status-orb"></div>
+                <div class="ai-console-title">AI ANALYTICS CONSOLE</div>
+            </div>
+            <button class="ai-console-close" onclick="toggleAIConsole()">
+                <i class="fas fa-times"></i>
+            </button>
+        </header>
+        <main class="ai-console-messages" id="consoleMessages">
+            <div class="console-msg bot">
+                <div class="console-bubble">
+                    Hola. Soy el núcleo de análisis inteligente de SmartHotel. ¿En qué métricas puedo ayudarte hoy?
+                </div>
+                <div class="console-meta">Alex AI · Ahora</div>
+            </div>
+        </main>
+        <footer class="console-input-container">
+            <div class="console-input-wrapper">
+                <i class="fas fa-terminal" style="color:var(--primary); margin-left:20px"></i>
+                <input type="text" class="console-input" id="consoleInput"
+                    placeholder="Pregunta sobre ocupación, ingresos o rendimiento..."
+                    onkeypress="if(event.key==='Enter') sendConsoleMessage()">
+                <button class="console-send-btn" onclick="sendConsoleMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- NOTIFICATIONS PANEL -->
+    <div class="notif-panel" id="notifPanel">
+        <div class="notif-header">Notificaciones</div>
+        <div id="notifList"></div>
+    </div>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Maintenance Order Modal -->
+    <div class="modal-overlay" id="mtModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Orden de Mantenimiento</h3><button class="modal-close"
+                    onclick="closeModal('mtModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>Habitación</label><select id="mtRoom" class="form-input"></select>
+                    </div>
+                    <div class="form-group"><label>Prioridad</label><select id="mtPriority" class="form-input">
+                            <option value="alta">Alta</option>
+                            <option value="media" selected>Media</option>
+                            <option value="baja">Baja</option>
+                        </select></div>
+                    <div class="form-group" style="grid-column:span 2"><label>Descripción del Problema</label><textarea
+                            id="mtDesc" class="form-input" rows="3"
+                            placeholder="Ej: Aire acondicionado ruidoso, grifo gotea..."></textarea></div>
+                    <div class="form-group"><label>Asignar a</label><select id="mtAssignee" class="form-input">
+                            <option>Técnico Carlos</option>
+                            <option>Técnico Luis</option>
+                            <option>Técnico Pedro</option>
+                        </select></div>
+                </div>
+                <button class="btn btn-gold w-full mt-16" onclick="saveMTOrder()">Crear Orden</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="roomModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalle de Habitación</h3><button class="modal-close"
+                    onclick="closeModal('roomModal')">×</button>
+            </div>
+            <div class="modal-body" id="roomModalBody"></div>
+        </div>
+    </div>
+
+
+
+    <div class="modal-overlay" id="resModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Reserva</h3><button class="modal-close"
+                    onclick="closeModal('resModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="newResName" class="form-input" placeholder="Nombre" list="guestNamesList"
+                            oninput="fillResGuestData(this.value)">
+                        <datalist id="guestNamesList"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label>Apellido</label>
+                        <input type="text" id="newResLastName" class="form-input" placeholder="Apellido">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula</label>
+                        <input type="text" id="newResID" class="form-input" placeholder="V-00000000">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Plan</label>
+                        <select id="newResPlan" class="form-input">
+                            <option>Solo Habitación</option>
+                            <option>Desayuno Incluido</option>
+                            <option>Media Pensión</option>
+                            <option>Todo Incluido</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Entrada</label><input type="date" id="newResIn" class="form-input">
+                    </div>
+                    <div class="form-group"><label>Salida</label><input type="date" id="newResOut" class="form-input">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Solicitado por (Empresa / Tercero)</label>
+                        <input type="text" id="newResRequestedBy" class="form-input"
+                            placeholder="Nombre de la empresa o persona que reserva">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Observación</label>
+                        <textarea id="newResNotes" class="form-input" list="resNoteSuggestions"
+                            placeholder="Notas adicionales..." style="height: 60px;"></textarea>
+                    </div>
+                </div>
+
+                <!-- Dynamic multi-room list -->
+                <div style="margin-top:12px">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+                        <label style="font-weight:600; margin:0">Habitaciones</label>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="addResRoom()"><i
+                                class="fas fa-plus"></i> Agregar Habitación</button>
+                    </div>
+                    <div
+                        style="display:grid; grid-template-columns:2fr 1.2fr 1fr 36px; gap:8px; margin-bottom:4px; font-size:11px; color:var(--text-muted); font-weight:600; padding:0 4px">
+                        <span>Tipo</span>
+                        <span>Precio/Noche ($)</span>
+                        <span>Personas</span>
+                        <span></span>
+                    </div>
+                    <div id="resRoomsList"></div>
+                </div>
+
+                <div id="resRoomPickerContainer" class="hidden mt-16">
+                    <hr style="border-color:var(--border);margin-bottom:16px">
+                    <div class="flex-between mb-8">
+                        <label>Seleccionar Habitación Manualmente</label>
+                        <span id="selectedRoomInfo" class="badge badge-gold">Ninguna</span>
+                    </div>
+                    <div id="resRoomGrid" class="rooms-grid"
+                        style="grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));gap:6px"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('resModal')">Cancelar</button>
+                <button class="btn btn-gold" onclick="createReservation()">Crear Reserva</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="guestModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuevo Huésped</h3><button class="modal-close"
+                    onclick="closeModal('guestModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>Nombre</label><input type="text" id="guestName" class="form-input">
+                    </div>
+                    <div class="form-group"><label>Email</label><input type="email" id="guestEmail" class="form-input">
+                    </div>
+                    <div class="form-group"><label>Teléfono</label><input type="tel" id="guestPhone" class="form-input">
+                    </div>
+                    <div class="form-group"><label>País</label><input type="text" id="guestCountry" class="form-input">
+                    </div>
+                    <div class="form-group"><label>Pref. Almohada</label><select id="guestPillow" class="form-input">
+                            <option>Plumas</option>
+                            <option>Espuma</option>
+                            <option>Látex</option>
+                        </select></div>
+                    <div class="form-group"><label>Alergias</label><input type="text" id="guestAllergies"
+                            class="form-input" placeholder="Ninguna"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('guestModal')">Cancelar</button>
+                <button class="btn btn-gold" onclick="createGuest()">Guardar Perfil</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="hkModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Tarea de Limpieza</h3><button class="modal-close"
+                    onclick="closeModal('hkModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Habitación</label>
+                        <select id="hkRoom" class="form-input"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Tarea</label>
+                        <select id="hkType" class="form-input">
+                            <option>Limpieza Diaria</option>
+                            <option>Limpieza de Salida</option>
+                            <option>Limpieza Profunda</option>
+                            <option>Reparación / Mantenimiento</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Prioridad</label>
+                        <select id="hkPriority" class="form-input">
+                            <option value="low">Baja</option>
+                            <option value="medium" selected>Media</option>
+                            <option value="high">Alta / Urgente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Asignar a</label>
+                        <input type="text" id="hkAssignee" class="form-input" placeholder="Nombre del personal">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha</label>
+                        <input type="date" id="hkDate" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Hora</label>
+                        <input type="time" id="hkTime" class="form-input">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('hkModal')">Cancelar</button>
+                <button class="btn btn-gold" onclick="saveHKTask()">Crear Tarea</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESERVATION DETAIL MODAL -->
+    <div class="modal-overlay" id="resDetailModal">
+        <div class="modal" style="max-width:700px">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalle de la Reserva</h3>
+                <button class="modal-close" onclick="closeModal('resDetailModal')">×</button>
+            </div>
+            <div class="modal-body" id="resDetailBody">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('resDetailModal')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOLIO / PAYMENT MODAL -->
+    <div class="modal-overlay" id="folioModal">
+        <div class="modal" style="max-width:600px">
+            <div class="modal-header">
+                <h3 class="modal-title">Gestión de Folio y Facturación</h3>
+                <button class="modal-close" onclick="closeModal('folioModal')">×</button>
+            </div>
+            <div class="modal-body" id="folioModalBody">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="modal-footer">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- GUEST DETAIL MODAL -->
+    <div class="modal-overlay" id="guestDetailModal">
+        <div class="modal" style="max-width:700px">
+            <div class="modal-header">
+                <h3 class="modal-title">Perfil del Huésped</h3>
+                <button class="modal-close" onclick="closeModal('guestDetailModal')">×</button>
+            </div>
+            <div class="modal-body" id="guestDetailModalBody">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('guestDetailModal')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALEX CHATBOT WIDGET -->
+    <button class="holo-fab" id="holoFab" onclick="toggleHolo()" title="Alex AI">
+        <span>🤖</span>
+    </button>
+    <div class="holo-chat" id="holoChat">
+        <div class="holo-header">
+            <div class="holo-avatar">🤖</div>
+            <div>
+                <div class="holo-name">Alex ✨</div>
+                <div class="holo-status">En línea</div>
+            </div>
+            <button class="holo-close" onclick="toggleHolo()">×</button>
+        </div>
+        <div class="holo-messages" id="holoMessages"></div>
+        <div class="holo-input-area">
+            <input type="text" class="holo-input" id="holoInput" placeholder="Escribe a Alex..."
+                onkeypress="if(event.key==='Enter') sendHolo()">
+            <button class="holo-send" onclick="sendHolo()">➤</button>
+        </div>
+    </div>
+
+    <div id="globalLoader" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- QUOTATION MODAL -->
+    <div class="modal-overlay" id="quoteModal">
+        <div class="modal" style="max-width:750px">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Cotización</h3>
+                <button class="modal-close" onclick="closeModal('quoteModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <!-- Agency Info (Opcional) -->
+                    <div style="grid-column: span 2">
+                        <h4 class="mb-8">Datos de la Empresa / Agencia <small
+                                style="font-weight:400;color:var(--text-muted);font-size:11px">(opcional)</small></h4>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre de la Agencia</label>
+                        <input type="text" id="qAgencyName" class="form-input" placeholder="Nombre Comercial">
+                    </div>
+                    <div class="form-group">
+                        <label>RIF</label>
+                        <input type="text" id="qAgencyRif" class="form-input" placeholder="J-00000000-0">
+                    </div>
+                    <div class="form-group">
+                        <label>Email de Contacto</label>
+                        <input type="email" id="qAgencyEmail" class="form-input" placeholder="email@agencia.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="qAgencyPhone" class="form-input" placeholder="+58 ...">
+                    </div>
+
+                    <!-- Passengers -->
+                    <div style="grid-column: span 2; margin-top:10px">
+                        <h4 class="mb-8">Pasajeros</h4>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2">
+                        <label>Nombres de los Pasajeros (separados por coma)</label>
+                        <textarea id="qPassengers" class="form-input" rows="2"
+                            placeholder="Ej: Yoseline, Alexander, Johnny"></textarea>
+                    </div>
+
+                    <!-- Reservation Details -->
+                    <div style="grid-column: span 2; margin-top:10px">
+                        <h4 class="mb-8">Detalles de Reserva</h4>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Entrada *</label>
+                        <input type="date" id="qCheckIn" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Salida *</label>
+                        <input type="date" id="qCheckOut" class="form-input">
+                    </div>
+
+                    <!-- Dynamic Rooms List -->
+                    <div style="grid-column: span 2; margin-top:10px">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+                            <h4 style="margin:0">Habitaciones <small
+                                    style="font-weight:400;color:var(--text-muted);font-size:11px">(precio total IVA
+                                    incluido)</small></h4>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="addQuoteRoom()"><i
+                                    class="fas fa-plus"></i> Agregar Habitación</button>
+                        </div>
+                        <!-- Header row -->
+                        <div
+                            style="display:grid; grid-template-columns:2fr 1.2fr 1fr 36px; gap:8px; margin-bottom:4px; font-size:11px; color:var(--text-muted); font-weight:600; padding:0 4px">
+                            <span>Tipo de Habitación</span>
+                            <span>Precio/Noche ($, IVA incl.) *</span>
+                            <span>Pax en habitación</span>
+                            <span></span>
+                        </div>
+                        <div id="qRoomsList"></div>
+                    </div>
+
+                    <div class="form-group" style="grid-column: span 2">
+                        <label>Observaciones / Plan</label>
+                        <input type="text" id="qNotes" class="form-input"
+                            placeholder="Ej: CON DESAYUNO / TODO INCLUIDO">
+                    </div>
+                    <div class="form-group">
+                        <label>Validez (Días)</label>
+                        <input type="number" id="qValidity" class="form-input" value="3">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('quoteModal')">Cancelar</button>
+                <button class="btn btn-gold" onclick="saveQuotation()">Generar Cotización</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUOTATION PREVIEW MODAL -->
+    <div class="modal-overlay" id="quotePreviewModal">
+        <div class="modal" style="max-width:850px; padding:0">
+            <div class="modal-header">
+                <h3 class="modal-title">Vista Previa de Cotización</h3>
+                <button class="modal-close" onclick="closeModal('quotePreviewModal')">×</button>
+            </div>
+            <div class="modal-body" id="quotePreviewBody"
+                style="background:white; color:black; padding:0; overflow-y:auto; max-height:80vh">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="modal-footer"
+                style="background:#f8fafc; border-top:1px solid #e2e8f0; padding:15px; display:flex; justify-content:flex-end; gap:12px">
+                <button class="btn btn-outline" onclick="closeModal('quotePreviewModal')">Cerrar</button>
+                <button id="btnConvertQuote" class="btn btn-primary"
+                    style="background:var(--primary); color:white">Convertir a Reserva</button>
+                <button id="btnPrintQuote" class="btn btn-gold">🖨️ Imprimir PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

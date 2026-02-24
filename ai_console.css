@@ -1,0 +1,207 @@
+/* AI Analytics Console - Premium Dark Styles */
+
+.ai-console-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(5, 7, 10, 0.95);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.ai-console-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.ai-console-header {
+    height: 80px;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+}
+
+.ai-console-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ai-status-orb {
+    width: 12px;
+    height: 12px;
+    background: var(--primary);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--primary);
+    animation: pulse 2s infinite;
+}
+
+.ai-console-title {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--text-main);
+}
+
+.ai-console-close {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.ai-console-close:hover {
+    background: var(--accent);
+    transform: rotate(90deg);
+}
+
+.ai-console-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.console-msg {
+    max-width: 85%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.console-msg.bot {
+    align-self: flex-start;
+}
+
+.console-msg.user {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.console-bubble {
+    padding: 20px 24px;
+    border-radius: 20px;
+    line-height: 1.6;
+    font-size: 16px;
+    position: relative;
+}
+
+.console-msg.bot .console-bubble {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    border-bottom-left-radius: 4px;
+}
+
+.console-msg.user .console-bubble {
+    background: var(--primary-gradient);
+    color: white;
+    border-bottom-right-radius: 4px;
+    box-shadow: var(--shadow-premium);
+}
+
+.console-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.console-input-container {
+    padding: 40px;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.console-input-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 40px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.console-input-wrapper:focus-within {
+    border-color: var(--primary);
+    box-shadow: var(--glow-primary);
+}
+
+.console-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    padding: 12px 20px;
+    font-size: 16px;
+    outline: none;
+}
+
+.console-send-btn {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: var(--transition);
+}
+
+.console-send-btn:hover {
+    transform: scale(1.1);
+    box-shadow: var(--glow-primary);
+}
+
+/* Visualization Snippets inside chat */
+.console-viz {
+    margin-top: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--border);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.4);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
